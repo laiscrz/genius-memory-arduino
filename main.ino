@@ -17,6 +17,8 @@ bool isGameOver = false;                      // Estado do jogo
 const int MAX_LEVELS = 5;                     // Limite de níveis
 const int POINTS_PER_LEVEL = 3;               // Pontos ganhos por nível completo
 const int POINTS_FOR_CORRECT = 1;             // Pontos por LED correto antes do erro
+int currentLevel = 0; // Nível atual do jogo
+
 
 int ledDelay; // Variável para armazenar a velocidade dos LEDs
 
@@ -88,7 +90,7 @@ void loop() {
 }
 
 void jogarJogo() {
-    sequenceLength = 0; // Começa sempre no nível 1
+    currentLevel = 1; // Começa sempre no nível 1
     currentPlayer = 0;  // Começa com o Jogador 1
     isGameOver = false; // Garante que o jogo não está terminado
 
@@ -158,10 +160,21 @@ void jogarJogo() {
             }
         }
 
-        // Aumentar o nível apenas após ambos os jogadores completarem a rodada atual
-        if (sequenceLength < MAX_LEVELS) {
-          sequenceLength + 1; // Aumenta o nível
+       // Verificar se o nível atual é o último
+        if (currentLevel >= MAX_LEVELS) {
+            isGameOver = true;
+            Serial.println("Nível máximo atingido. Fim do jogo.");
+            break; // Encerrar o loop principal do jogo
         }
+
+        // Aumentar o nível apenas após ambos os jogadores completarem a rodada atual
+        if (currentLevel < MAX_LEVELS) {
+            currentLevel++; // Aumenta o nível do jogo
+            Serial.print("Avançando para o nível: ");
+            Serial.println(currentLevel);
+        }
+
+        
     }
 }
 
