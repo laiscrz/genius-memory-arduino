@@ -17,8 +17,7 @@ bool isGameOver = false;                      // Estado do jogo
 const int MAX_LEVELS = 5;                     // Limite de níveis
 const int POINTS_PER_LEVEL = 3;               // Pontos ganhos por nível completo
 const int POINTS_FOR_CORRECT = 1;             // Pontos por LED correto antes do erro
-int currentLevel = 0; // Nível atual do jogo
-
+int currentLevel = 1;                          // Nível atual do jogo
 
 int ledDelay; // Variável para armazenar a velocidade dos LEDs
 
@@ -27,6 +26,17 @@ LiquidCrystal lcd1(7, 13, A0, A1, A2, A3);
 
 // Declaração de 'correctCount' para uso em ambas as funções
 int correctCount = 0;
+
+// Protótipos das funções
+void iniciarJogo();
+void jogarJogo();
+void gerarSequencia();
+void mostrarSequencia();
+void verificarEntradaJogador();
+void reiniciarJogo();
+void nivelDificuldade();
+void carregarPontuacoesAltas();
+void salvarPontuacaoAlta(int player, int score);
 
 void setup() {
     Serial.begin(9600);                         // Inicializar comunicação serial
@@ -74,6 +84,8 @@ void loop() {
         lcd1.print(" P2: ");
         lcd1.print(rounds[1]);
 
+        delay(2000); // Pequena pausa para que a pontuação seja visível
+
         if (rounds[0] > rounds[1]) {
             lcd1.setCursor(0, 1);
             lcd1.print("Jogador 1 Ganhou!");
@@ -84,15 +96,15 @@ void loop() {
             lcd1.setCursor(0, 1);
             lcd1.print("Empate!");
         }
-        delay(5000); // Aguardar 5 segundos para mostrar a pontuação final
+        delay(3000); // Aguardar 3 segundos para mostrar a mensagem final
         reiniciarJogo();
     }
 }
 
 void jogarJogo() {
     currentLevel = 1; // Começa sempre no nível 1
-    currentPlayer = 0;  // Começa com o Jogador 1
     isGameOver = false; // Garante que o jogo não está terminado
+    sequenceLength = 0; // Reinicia a sequência
 
     while (true) { // Loop principal do jogo
         gerarSequencia(); // Gera a sequência antes de cada rodada
@@ -124,7 +136,7 @@ void jogarJogo() {
                         Serial.print("Parabéns! Jogador ");
                         Serial.print(player + 1);
                         Serial.print(" completou o nível ");
-                        Serial.print(sequenceLength);
+                        Serial.print(currentLevel);
                         Serial.print(" Pontuação: ");
                         Serial.println(rounds[player]);
                     } else if (correctCount > 0) {
@@ -142,7 +154,8 @@ void jogarJogo() {
                     break; // Saia do loop se o jogador completou a sequência
                 }
 
-                // Verifica se o jogador errou
+                // Remover a verificação redundante abaixo
+                /*
                 if (playerPosition >= sequenceLength) {
                     // Jogador errou; exibir mensagem e passar para o próximo jogador
                     Serial.println("Erro! Jogador passa a vez.");
@@ -151,16 +164,24 @@ void jogarJogo() {
                     delay(2000);
                     break; // Passar para o próximo jogador
                 }
+                */
             }
 
-            // Verificar se o jogo acabou, se ambos os jogadores jogaram o limite de níveis
+            // Remover a condição de fim de jogo baseada na soma das pontuações
+            /*
             if (rounds[0] + rounds[1] >= MAX_LEVELS * POINTS_PER_LEVEL) {
                 isGameOver = true; // Fim do jogo
                 break; // Saia do loop se o jogo está acabado
             }
+            */
         }
 
-       // Verificar se o nível atual é o último
+        // Adicionar verificação de isGameOver após o loop dos jogadores
+        if (isGameOver) {
+            break;
+        }
+
+        // Verificar se o nível atual é o último
         if (currentLevel >= MAX_LEVELS) {
             isGameOver = true;
             Serial.println("Nível máximo atingido. Fim do jogo.");
@@ -173,15 +194,16 @@ void jogarJogo() {
             Serial.print("Avançando para o nível: ");
             Serial.println(currentLevel);
         }
-
-        
     }
 }
 
 void gerarSequencia() {
+    // Adicionar um novo LED à sequência se ainda não atingiu o nível máximo
     if (sequenceLength < MAX_LEVELS) {
         sequence[sequenceLength] = random(0, NUM_LEDS); // Adicionar um novo LED
         sequenceLength++; // Aumentar o comprimento da sequência após adicionar
+        Serial.print("Sequência gerada para o nível ");
+        Serial.println(currentLevel);
     }
 }
 
@@ -198,7 +220,7 @@ void mostrarSequencia() {
         noTone(BUZZER_PIN);
         digitalWrite(LED_PINS[led], LOW);
         delay(500); // Pausa entre LEDs
-        
+
         // Atualizar sequência no display
         lcd1.setCursor(0, 1);
         lcd1.print("L");
@@ -244,6 +266,7 @@ void verificarEntradaJogador() {
         }
     }
 }
+
 void iniciarJogo() {
     Serial.println("Iniciando o jogo! Pressione (s) para começar.");
     lcd1.clear();
@@ -269,6 +292,7 @@ void iniciarJogo() {
                 rounds[0] = 0;
                 rounds[1] = 0;
                 sequenceLength = 0; // Reiniciar o comprimento da sequência ao iniciar o jogo
+                currentLevel = 1;    // Reiniciar o nível atual
                 break;
             }
         }
@@ -280,6 +304,7 @@ void reiniciarJogo() {
     rounds[0] = 0;
     rounds[1] = 0;
     sequenceLength = 0;
+    currentLevel = 1; // Reiniciar o nível atual
 
     for (int i = 0; i < NUM_LEDS; i++) {
         digitalWrite(LED_PINS[i], LOW);
@@ -307,12 +332,15 @@ void nivelDificuldade() {
             char choice = Serial.read();
             if (choice == '1') {
                 ledDelay = 1000; // Dificuldade iniciante
+                Serial.println("Dificuldade: Iniciante");
                 break;
             } else if (choice == '2') {
                 ledDelay = 500; // Dificuldade Média
+                Serial.println("Dificuldade: Média");
                 break;
             } else if (choice == '3') {
                 ledDelay = 250; // Dificuldade Hard
+                Serial.println("Dificuldade: Hard");
                 break;
             }
         }
