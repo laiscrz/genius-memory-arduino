@@ -43,7 +43,7 @@ void setup() {
     lcd1.clear();
 
     // Carregar pontuações ao iniciar o jogo
-    loadHighScores();
+    carregarPontuacoesAltas();
 
     // Exibir informações iniciais para iniciar o jogo
     lcd1.setCursor(0, 0);
@@ -55,12 +55,12 @@ void setup() {
     randomSeed(analogRead(0));
 
     // Iniciar o jogo
-    startGame();
+    iniciarJogo();
 }
 
 void loop() {
     if (!isGameOver) {
-        playGame();
+        jogarJogo();
     } else {
         // Exibir mensagem de Game Over no LCD1
         lcd1.clear();
@@ -83,20 +83,20 @@ void loop() {
             lcd1.print("Empate!");
         }
         delay(5000); // Aguardar 5 segundos para mostrar a pontuação final
-        resetGame();
+        reiniciarJogo();
     }
 }
 
-void playGame() {
+void jogarJogo() {
     sequenceLength = 0; // Começa sempre no nível 1
     currentPlayer = 0;  // Começa com o Jogador 1
     isGameOver = false; // Garante que o jogo não está terminado
 
     while (true) { // Loop principal do jogo
-        generateSequence(); // Gera a sequência antes de cada rodada
+        gerarSequencia(); // Gera a sequência antes de cada rodada
 
         for (int player = 0; player < 2; player++) { // Loop para os dois jogadores
-            showSequence();     // Mostra a sequência para o jogador
+            mostrarSequencia();     // Mostra a sequência para o jogador
             playerPosition = 0; // Reinicia a posição do jogador
             correctCount = 0;   // Reinicia o contador de acertos
             lcd1.clear();
@@ -107,7 +107,7 @@ void playGame() {
             lcd1.print("Sua Vez!");
 
             while (true) { // Loop para o jogador atual
-                checkPlayerInput(); // Verifica a entrada do jogador
+                verificarEntradaJogador(); // Verifica a entrada do jogador
 
                 // Atualiza a posição no display
                 lcd1.setCursor(0, 1);
@@ -165,16 +165,14 @@ void playGame() {
     }
 }
 
-
-
-void generateSequence() {
+void gerarSequencia() {
     if (sequenceLength < MAX_LEVELS) {
         sequence[sequenceLength] = random(0, NUM_LEDS); // Adicionar um novo LED
         sequenceLength++; // Aumentar o comprimento da sequência após adicionar
     }
 }
 
-void showSequence() {
+void mostrarSequencia() {
     lcd1.clear();
     lcd1.setCursor(0, 0);
     lcd1.print("Sequência:");
@@ -198,7 +196,7 @@ void showSequence() {
     }
 }
 
-void checkPlayerInput() {
+void verificarEntradaJogador() {
     for (int i = 0; i < NUM_LEDS; i++) {
         if (digitalRead(BUTTONS[i]) == LOW) {
             digitalWrite(LED_PINS[i], HIGH);
@@ -233,8 +231,7 @@ void checkPlayerInput() {
         }
     }
 }
-
-void startGame() {
+void iniciarJogo() {
     Serial.println("Iniciando o jogo! Pressione (s) para começar.");
     lcd1.clear();
     lcd1.setCursor(0, 0);
@@ -265,7 +262,7 @@ void startGame() {
     }
 }
 
-void resetGame() {
+void reiniciarJogo() {
     isGameOver = false;
     rounds[0] = 0;
     rounds[1] = 0;
@@ -281,7 +278,7 @@ void resetGame() {
     lcd1.setCursor(0, 1);
     lcd1.print("Pressione 'S'");
     delay(2000);
-    startGame();
+    iniciarJogo();
 }
 
 // Função para selecionar o nível de dificuldade
@@ -310,14 +307,14 @@ void nivelDificuldade() {
 }
 
 // Função para carregar as pontuações altas
-void loadHighScores() {
+void carregarPontuacoesAltas() {
     // Carregar pontuações do EEPROM
     rounds[0] = EEPROM.read(0);
     rounds[1] = EEPROM.read(1);
 }
 
 // Função para salvar a pontuação mais alta
-void saveHighScore(int player, int score) {
+void salvarPontuacaoAlta(int player, int score) {
     if (score > EEPROM.read(player)) {
         EEPROM.write(player, score);
     }
