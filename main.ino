@@ -1,5 +1,5 @@
 #include <LiquidCrystal.h>
-#include <EEPROM.h>  // Biblioteca para EEPROM
+#include <EEPROM.h>
 
 // Definições dos pinos
 const int LED_PINS[] = {8, 9, 10, 11};        // LEDs conectados nos pinos 8, 9, 10, 11
@@ -15,11 +15,16 @@ int rounds[2] = {0, 0};                       // Contador de rodadas para dois j
 int currentPlayer = 0;                        // Jogador atual (0 ou 1)
 bool isGameOver = false;                      // Estado do jogo
 const int MAX_LEVELS = 5;                     // Limite de níveis
+const int POINTS_PER_LEVEL = 3;               // Pontos ganhos por nível completo
+const int POINTS_FOR_CORRECT = 1;             // Pontos por LED correto antes do erro
 
 int ledDelay; // Variável para armazenar a velocidade dos LEDs
 
 // Inicialização do LCD1602 padrão (paralelo)
 LiquidCrystal lcd1(7, 13, A0, A1, A2, A3);
+
+// Declaração de 'correctCount' para uso em ambas as funções
+int correctCount = 0;
 
 void setup() {
     Serial.begin(9600);                         // Inicializar comunicação serial
@@ -83,52 +88,90 @@ void loop() {
 }
 
 void playGame() {
-    generateSequence();
-    showSequence();
+    sequenceLength = 0; // Começa sempre no nível 1
+    currentPlayer = 0;  // Começa com o Jogador 1
+    isGameOver = false; // Garante que o jogo não está terminado
 
-    playerPosition = 0; // Resetar posição do jogador
-    lcd1.clear();
-    lcd1.setCursor(0, 0);
-    lcd1.print("Jogador ");
-    lcd1.print(currentPlayer + 1);
-    lcd1.setCursor(0, 1);
-    lcd1.print("Sua Vez!");
+    while (true) { // Loop principal do jogo
+        generateSequence(); // Gera a sequência antes de cada rodada
 
-    while (playerPosition < sequenceLength) {
-        checkPlayerInput();
-        // Atualizar a posição no display
-        lcd1.setCursor(0, 1);
-        lcd1.print("Pos: ");
-        lcd1.print(playerPosition + 1);
-    }
+        for (int player = 0; player < 2; player++) { // Loop para os dois jogadores
+            showSequence();     // Mostra a sequência para o jogador
+            playerPosition = 0; // Reinicia a posição do jogador
+            correctCount = 0;   // Reinicia o contador de acertos
+            lcd1.clear();
+            lcd1.setCursor(0, 0);
+            lcd1.print("Jogador ");
+            lcd1.print(player + 1);
+            lcd1.setCursor(0, 1);
+            lcd1.print("Sua Vez!");
 
-    rounds[currentPlayer]++; // Incrementar rodadas do jogador atual
-    saveHighScore(currentPlayer, rounds[currentPlayer]); // Salvar a pontuação mais alta
-    Serial.print("Parabéns! Jogador ");
-    Serial.print(currentPlayer + 1);
-    Serial.print(" completou o nível ");
-    Serial.println(rounds[currentPlayer]);
+            while (true) { // Loop para o jogador atual
+                checkPlayerInput(); // Verifica a entrada do jogador
 
-    // Atualizar displays
-    lcd1.clear();
-    lcd1.setCursor(0, 0);
-    lcd1.print("Nível Completo!");
-    lcd1.setCursor(0, 1);
-    lcd1.print("Jogador: ");
-    lcd1.print(currentPlayer + 1);
-    delay(2000);
+                // Atualiza a posição no display
+                lcd1.setCursor(0, 1);
+                lcd1.print("Pos: ");
+                lcd1.print(playerPosition + 1);
 
-    // Passar para o próximo jogador
-    currentPlayer = (currentPlayer + 1) % 2;
-    if (rounds[0] + rounds[1] >= MAX_LEVELS) {
-        isGameOver = true; // Se ambos os jogadores jogaram o limite de níveis
+                // Verifica se o jogador completou a sequência
+                if (playerPosition >= sequenceLength) {
+                    // O jogador completou a sequência corretamente
+                    if (correctCount == sequenceLength) {
+                        rounds[player] += POINTS_PER_LEVEL; // Incrementa a pontuação por completar o nível
+                        Serial.print("Parabéns! Jogador ");
+                        Serial.print(player + 1);
+                        Serial.print(" completou o nível ");
+                        Serial.print(sequenceLength);
+                        Serial.print(" Pontuação: ");
+                        Serial.println(rounds[player]);
+                    } else if (correctCount > 0) {
+                        rounds[player] += correctCount; // Adiciona os pontos por acertos antes do erro
+                        Serial.print("Jogador ");
+                        Serial.print(player + 1);
+                        Serial.print(" acertou ");
+                        Serial.print(correctCount);
+                        Serial.println(" LED(s) antes do erro.");
+                    } else {
+                        Serial.print("Jogador ");
+                        Serial.print(player + 1);
+                        Serial.println(" não acertou nada.");
+                    }
+                    break; // Saia do loop se o jogador completou a sequência
+                }
+
+                // Verifica se o jogador errou
+                if (playerPosition >= sequenceLength) {
+                    // Jogador errou; exibir mensagem e passar para o próximo jogador
+                    Serial.println("Erro! Jogador passa a vez.");
+                    lcd1.setCursor(0, 1);
+                    lcd1.print("Erro! Proxima vez.");
+                    delay(2000);
+                    break; // Passar para o próximo jogador
+                }
+            }
+
+            // Verificar se o jogo acabou, se ambos os jogadores jogaram o limite de níveis
+            if (rounds[0] + rounds[1] >= MAX_LEVELS * POINTS_PER_LEVEL) {
+                isGameOver = true; // Fim do jogo
+                break; // Saia do loop se o jogo está acabado
+            }
+        }
+
+        // Aumentar o nível apenas após ambos os jogadores completarem a rodada atual
+        if (sequenceLength < MAX_LEVELS) {
+          sequenceLength + 1; // Aumenta o nível
+        }
     }
 }
 
+
+
 void generateSequence() {
-    sequenceLength++;
-    if (sequenceLength > NUM_LEDS) sequenceLength = NUM_LEDS; // Limitar a quantidade de LEDs
-    sequence[sequenceLength - 1] = random(0, NUM_LEDS); // Adicionar um novo LED
+    if (sequenceLength < MAX_LEVELS) {
+        sequence[sequenceLength] = random(0, NUM_LEDS); // Adicionar um novo LED
+        sequenceLength++; // Aumentar o comprimento da sequência após adicionar
+    }
 }
 
 void showSequence() {
@@ -169,14 +212,23 @@ void checkPlayerInput() {
             lcd1.print("Botao: ");
             lcd1.print(i + 1);
             
-            if (sequence[playerPosition] != i) {
-                isGameOver = true;
-                Serial.println("Erro! Game Over!");
+            // Verifique se o jogador acertou
+            if (sequence[playerPosition] == i) {
+                playerPosition++; // Mova para a próxima posição se acertar
+                correctCount++;
+            } else {
+                // Jogador errou; exibir mensagem e passar para o próximo jogador
+                Serial.println("Erro! Jogador passa a vez.");
                 lcd1.setCursor(0, 1);
-                lcd1.print("Erro no Botao!");
-                break;
+                lcd1.print("Erro! Proxima vez.");
+                
+                // Esperar um momento para que a mensagem seja lida
+                delay(2000);
+                
+                // Passar para o próximo jogador
+                playerPosition = sequenceLength; // Forçar o fim do loop
+                break; // Sair do loop de verificação de botões
             }
-            playerPosition++;
             delay(200); // Debounce
         }
     }
@@ -206,7 +258,7 @@ void startGame() {
                 isGameOver = false;
                 rounds[0] = 0;
                 rounds[1] = 0;
-                currentPlayer = 0; // Reiniciar jogador atual
+                sequenceLength = 0; // Reiniciar o comprimento da sequência ao iniciar o jogo
                 break;
             }
         }
@@ -238,19 +290,19 @@ void nivelDificuldade() {
     lcd1.setCursor(0, 0);
     lcd1.print("Escolha Dificuldade");
     lcd1.setCursor(0, 1);
-    lcd1.print("1: F 2: M 3: D");
+    lcd1.print("1: I 2: M 3: H");
 
     while (true) {
         if (Serial.available()) {
             char choice = Serial.read();
             if (choice == '1') {
-                ledDelay = 1000; // Dificuldade Fácil
+                ledDelay = 1000; // Dificuldade iniciante
                 break;
             } else if (choice == '2') {
                 ledDelay = 500; // Dificuldade Média
                 break;
             } else if (choice == '3') {
-                ledDelay = 250; // Dificuldade Difícil
+                ledDelay = 250; // Dificuldade Hard
                 break;
             }
         }
