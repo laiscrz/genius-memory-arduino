@@ -27,6 +27,20 @@ LiquidCrystal lcd1(7, 13, A0, A1, A2, A3);
 // Declaração de 'correctCount' para uso em ambas as funções
 int correctCount = 0;
 
+// Estrutura para armazenar dados de dificuldade
+struct Dificuldade {
+    int ledDelay;      // Atraso em milissegundos
+    const char* nome;  // Nome da dificuldade
+};
+
+// Definição dos níveis de dificuldade
+Dificuldade dificuldades[] = {
+    {1000, "Iniciante"},   // Dificuldade 1
+    {500, "Média"},        // Dificuldade 2
+    {250, "Difícil"},      // Dificuldade 3
+    {125, "Muito Difícil"} // Dificuldade 4
+};
+
 // Protótipos das funções
 void iniciarJogo();
 void jogarJogo();
@@ -305,31 +319,24 @@ void nivelDificuldade() {
     lcd1.setCursor(0, 0);
     lcd1.print("Escolha Dificuldade");
     lcd1.setCursor(0, 1);
-    lcd1.print("1: I 2: M 3: D 4: H");
+    lcd1.print("1:I 2:M 3:D 4:H");
 
     while (true) {
         if (Serial.available()) {
             char choice = Serial.read();
-            if (choice == '1') {
-                ledDelay = 1000; // Dificuldade Iniciante
-                Serial.println("Dificuldade: Iniciante");
-                break;
-            } else if (choice == '2') {
-                ledDelay = 500; // Dificuldade Média
-                Serial.println("Dificuldade: Média");
-                break;
-            } else if (choice == '3') {
-                ledDelay = 250; // Dificuldade Hard
-                Serial.println("Dificuldade: Difícil");
-                break;
-            } else if (choice == '4') {
-                ledDelay = 125; // Dificuldade Muito Hard
-                Serial.println("Dificuldade: Muito Difícil");
-                break;
+            int index = choice - '1'; // Converte o caractere para índice
+
+            // Verifica se o índice está dentro do intervalo
+            if (index >= 0 && index < sizeof(dificuldades) / sizeof(dificuldades[0])) {
+                ledDelay = dificuldades[index].ledDelay; // Define o ledDelay com base na escolha
+                Serial.print("Dificuldade: ");
+                Serial.println(dificuldades[index].nome); // Exibe o nome da dificuldade escolhida
+                break; // Sai do loop
             }
         }
     }
 }
+
 
 
 // Função para carregar as pontuações altas
