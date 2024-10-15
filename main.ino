@@ -305,13 +305,13 @@ void nivelDificuldade() {
     lcd1.setCursor(0, 0);
     lcd1.print("Escolha Dificuldade");
     lcd1.setCursor(0, 1);
-    lcd1.print("1: I 2: M 3: H");
+    lcd1.print("1: I 2: M 3: D 4: H");
 
     while (true) {
         if (Serial.available()) {
             char choice = Serial.read();
             if (choice == '1') {
-                ledDelay = 1000; // Dificuldade iniciante
+                ledDelay = 1000; // Dificuldade Iniciante
                 Serial.println("Dificuldade: Iniciante");
                 break;
             } else if (choice == '2') {
@@ -320,12 +320,17 @@ void nivelDificuldade() {
                 break;
             } else if (choice == '3') {
                 ledDelay = 250; // Dificuldade Hard
-                Serial.println("Dificuldade: Hard");
+                Serial.println("Dificuldade: Difícil");
+                break;
+            } else if (choice == '4') {
+                ledDelay = 125; // Dificuldade Muito Hard
+                Serial.println("Dificuldade: Muito Difícil");
                 break;
             }
         }
     }
 }
+
 
 // Função para carregar as pontuações altas
 void carregarPontuacoesAltas() {
