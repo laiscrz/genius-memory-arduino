@@ -27,6 +27,21 @@ LiquidCrystal lcd1(7, 13, A0, A1, A2, A3);
 // Declaração de 'correctCount' para uso em ambas as funções
 int correctCount = 0;
 
+// Componentes do jogo
+struct Componente {
+  const char* cor;  // Nome da cor
+  int botao;        // Número do botão
+  int led;          // Número do LED
+  int tom;          // Frequência do tom em Hz
+};
+
+Componente componentes[] = {
+  {"Vermelho", BUTTONS[0], LED_PINS[0], 262}, // C4 - Dó
+  {"Verde", BUTTONS[1], LED_PINS[1], 294},   // D4 - Ré
+  {"Azul", BUTTONS[2], LED_PINS[2], 330},    // E4 - Mi
+  {"Amarelo", BUTTONS[3], LED_PINS[3], 392}  // G4 - Sol
+};
+
 // Estrutura para armazenar dados de dificuldade
 struct Dificuldade {
     int ledDelay;      // Atraso em milissegundos
@@ -207,37 +222,41 @@ void mostrarSequencia() {
     lcd1.print("Sequência:");
 
     for (int i = 0; i < sequenceLength; i++) {
-        int led = sequence[i];
-        digitalWrite(LED_PINS[led], HIGH);
-        tone(BUZZER_PIN, 440 * (1 << led)); // Nota para o LED
-        delay(ledDelay); // Usar ledDelay aqui
+        int ledIndex = sequence[i];
+        Componente componenteAtual = componentes[ledIndex];
+        
+        digitalWrite(componenteAtual.led, HIGH);
+        tone(BUZZER_PIN, componenteAtual.tom); // Usa o tom específico
+        delay(ledDelay);
         noTone(BUZZER_PIN);
-        digitalWrite(LED_PINS[led], LOW);
+        digitalWrite(componenteAtual.led, LOW);
         delay(500); // Pausa entre LEDs
 
         // Atualizar sequência no display
         lcd1.setCursor(0, 1);
-        lcd1.print("L");
-        lcd1.print(led + 1);
+        lcd1.print(componenteAtual.cor); // Exibe a cor do LED
         delay(200);
         lcd1.setCursor(0, 1);
         lcd1.print("         "); // Limpar a linha
     }
 }
 
+
 void verificarEntradaJogador() {
     for (int i = 0; i < NUM_LEDS; i++) {
-        if (digitalRead(BUTTONS[i]) == LOW) {
-            digitalWrite(LED_PINS[i], HIGH);
-            tone(BUZZER_PIN, 440 * (1 << i)); // Nota para o botão
+        if (digitalRead(componentes[i].botao) == LOW) {
+            Componente componenteAtual = componentes[i];
+            
+            digitalWrite(componenteAtual.led, HIGH);
+            tone(BUZZER_PIN, componenteAtual.tom); // Usa o tom específico
             delay(200);
             noTone(BUZZER_PIN);
-            digitalWrite(LED_PINS[i], LOW);
+            digitalWrite(componenteAtual.led, LOW);
             
             // Atualizar entrada do jogador no display
             lcd1.setCursor(0, 1);
             lcd1.print("Botao: ");
-            lcd1.print(i + 1);
+            lcd1.print(componenteAtual.cor); // Mostrar a cor do botão
             
             // Verifique se o jogador acertou
             if (sequence[playerPosition] == i) {
@@ -260,6 +279,7 @@ void verificarEntradaJogador() {
         }
     }
 }
+
 
 void iniciarJogo() {
     Serial.println("Iniciando o jogo! Pressione (s) para começar.");
