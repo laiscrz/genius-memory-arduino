@@ -153,27 +153,7 @@ void jogarJogo() {
                     }
                     break; // Saia do loop se o jogador completou a sequência
                 }
-
-                // Remover a verificação redundante abaixo
-                /*
-                if (playerPosition >= sequenceLength) {
-                    // Jogador errou; exibir mensagem e passar para o próximo jogador
-                    Serial.println("Erro! Jogador passa a vez.");
-                    lcd1.setCursor(0, 1);
-                    lcd1.print("Erro! Proxima vez.");
-                    delay(2000);
-                    break; // Passar para o próximo jogador
-                }
-                */
             }
-
-            // Remover a condição de fim de jogo baseada na soma das pontuações
-            /*
-            if (rounds[0] + rounds[1] >= MAX_LEVELS * POINTS_PER_LEVEL) {
-                isGameOver = true; // Fim do jogo
-                break; // Saia do loop se o jogo está acabado
-            }
-            */
         }
 
         // Adicionar verificação de isGameOver após o loop dos jogadores
