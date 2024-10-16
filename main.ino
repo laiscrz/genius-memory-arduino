@@ -24,6 +24,8 @@ int ledDelay; // Variável para armazenar a velocidade dos LEDs
 
 int numPlayers = 2; // Variável para armazenar o número de jogadores (1 ou 2)
 
+bool continuarJogo = true;
+
 // Inicialização do LCD1602 padrão (paralelo)
 LiquidCrystal lcd1(7, 13, A0, A1, A2, A3);
 
@@ -71,7 +73,35 @@ void reiniciarJogo();
 void nivelDificuldade();
 void carregarPontuacoesAltas();
 void salvarPontuacaoAlta(int player, int score);
-void selecionarModoJogo(); // Adicionado
+void selecionarModoJogo();
+
+void tocarMelodiaInicio() {
+    int melody[] = {262, 294, 330, 349, 392, 440}; // Notas da melodia
+    int durations[] = {200, 200, 200, 200, 200, 400}; // Duração de cada nota
+
+    for (int i = 0; i < 6; i++) {
+        tone(BUZZER_PIN, melody[i], durations[i]);
+        delay(durations[i] * 1.4);
+        noTone(BUZZER_PIN);
+    }
+}
+
+// Função para tocar a melodia final
+void tocarMelodiaFinal() {
+    int melody[] = {330, 330, 330, 392, 330, 523, 494,440};
+    int durations[] = {250, 250, 250, 250, 250, 250, 250, 500};
+
+    for (int i = 0; i < sizeof(melody) / sizeof(melody[0]); i++) {
+        if (melody[i] != 0) { 
+            tone(BUZZER_PIN, melody[i], durations[i]);
+        }
+        delay(durations[i] * 1.3);
+        noTone(BUZZER_PIN); 
+        delay(50); 
+    }
+}
+
+
 
 void setup() {
     Serial.begin(9600);                         // Inicializar comunicação serial
@@ -151,10 +181,35 @@ void loop() {
             }
         }
 
-        delay(3000); // Aguardar 3 segundos para mostrar a mensagem final
-        reiniciarJogo();
+        tocarMelodiaFinal(); // Chama a melodia final
+        delay(3000); 
+
+        // Perguntar ao jogador se deseja continuar
+        continuarJogo = perguntarContinuarJogo();
+
+        if (continuarJogo) {
+            reiniciarJogo(); // Reinicia o jogo se o jogador quiser continuar
+        } else {
+            // Exibir mensagem de agradecimento
+            lcd1.clear();
+            lcd1.setCursor(0, 0);
+            lcd1.print("Jogo Finalizado!");
+            lcd1.setCursor(0, 1);
+            lcd1.print("Ate a proxima!");
+            delay(2000); // Pausa para exibir a mensagem antes de encerrar
+
+            // Entrar em um loop infinito para encerrar o programa
+            while (true) {
+                // Opcional: Piscar o LED_MAIN para indicar que o jogo está encerrado
+                digitalWrite(LED_MAIN, HIGH);
+                delay(500);
+                digitalWrite(LED_MAIN, LOW);
+                delay(500);
+            }
+        }
     }
 }
+
 
 void jogarJogo() {
     currentLevel = 1; // Começa sempre no nível 1
@@ -305,17 +360,6 @@ void verificarEntradaJogador() {
     }
 }
 
-void tocarMelodiaInicio() {
-    int melody[] = {262, 294, 330, 349, 392, 440}; // Notas da melodia
-    int durations[] = {200, 200, 200, 200, 200, 400}; // Duração de cada nota
-
-    for (int i = 0; i < 6; i++) {
-        tone(BUZZER_PIN, melody[i], durations[i]);
-        delay(durations[i] * 1.4);
-        noTone(BUZZER_PIN);
-    }
-}
-
 void iniciarJogo() {
     Serial.println("Iniciando o jogo! Pressione o Button Main para começar.");
     lcd1.print("Pressione Main");
@@ -374,6 +418,7 @@ void reiniciarJogo() {
     rounds[1] = 0;
     sequenceLength = 0;
     currentLevel = 1; // Reiniciar o nível atual
+    continuarJogo = true; 
 
     for (int i = 0; i < NUM_LEDS; i++) {
         digitalWrite(LED_PINS[i], LOW);
@@ -469,6 +514,34 @@ void nivelDificuldade() {
 }
 
 
+// Função para perguntar ao jogador se deseja continuar
+bool perguntarContinuarJogo() {
+    lcd1.clear();
+    lcd1.setCursor(0, 0);
+    lcd1.print("Continuar? (S/N)");
+    lcd1.setCursor(0, 1);
+    lcd1.print("GREEN:S  RED:N");
+
+    // Aguardar a escolha do jogador
+    while (true) {
+        // Verificar botão Verde (S)
+        if (digitalRead(componentes[1].botao) == LOW) {  // Ajustado para o botão verde estar correto
+            tone(BUZZER_PIN, componentes[0].tom);
+            delay(200); // Debouncing simples
+            noTone(BUZZER_PIN);
+            return true; // Jogador quer continuar
+        }
+        // Verificar botão Vermelho (N)
+        if (digitalRead(componentes[0].botao) == LOW) {  // Ajustado para o botão vermelho estar correto
+            tone(BUZZER_PIN, componentes[1].tom);
+            delay(200); // Debouncing simples
+            noTone(BUZZER_PIN);
+            return false; // Jogador não quer continuar
+        }
+    }
+}
+
+
 
 // Função para carregar as pontuações altas
 void carregarPontuacoesAltas() {
@@ -503,3 +576,4 @@ void salvarPontuacaoAlta(int player, int score) {
         }
     }
 }
+
