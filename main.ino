@@ -5,9 +5,10 @@
 const int LED_PINS[] = {8, 9, 10, 11};        // LEDs conectados nos pinos 8, 9, 10, 11
 const int BUTTONS[] = {2, 3, 4, 5};          // Botões conectados nos pinos 2, 3, 4, 5
 const int BUZZER_PIN = 6;                     // Buzzer conectado no pino 6
+const int BUTTON_MAIN = 0;                    // Botão Principal conectado no pino 1
+const int LED_MAIN = 12;                      // LED Principal conectado no pino 12
 const int NUM_LEDS = sizeof(LED_PINS) / sizeof(LED_PINS[0]);
 const long SERIAL_TIMEOUT = 10000;            // Tempo de espera para entrada serial
-
 int sequence[100];                            // Sequência de LEDs
 int playerPosition = 0;                       // Posição atual do jogador na sequência
 int sequenceLength = 0;                       // Comprimento atual da sequência
@@ -20,6 +21,8 @@ const int POINTS_FOR_CORRECT = 1;             // Pontos por LED correto antes do
 int currentLevel = 1;                          // Nível atual do jogo
 
 int ledDelay; // Variável para armazenar a velocidade dos LEDs
+
+int numPlayers = 2; // Variável para armazenar o número de jogadores (1 ou 2)
 
 // Inicialização do LCD1602 padrão (paralelo)
 LiquidCrystal lcd1(7, 13, A0, A1, A2, A3);
@@ -36,11 +39,13 @@ struct Componente {
 };
 
 Componente componentes[] = {
-  {"Vermelho", BUTTONS[0], LED_PINS[0], 262}, // C4 - Dó
-  {"Verde", BUTTONS[1], LED_PINS[1], 294},   // D4 - Ré
-  {"Azul", BUTTONS[2], LED_PINS[2], 330},    // E4 - Mi
-  {"Amarelo", BUTTONS[3], LED_PINS[3], 392}  // G4 - Sol
+  {"Vermelho", BUTTONS[0], LED_PINS[0], 262},  // C4 - Dó
+  {"Verde", BUTTONS[1], LED_PINS[1], 294},     // D4 - Ré
+  {"Azul", BUTTONS[2], LED_PINS[2], 330},      // E4 - Mi
+  {"Amarelo", BUTTONS[3], LED_PINS[3], 392},   // G4 - Sol
+  {"Main", BUTTON_MAIN, LED_MAIN, 440}         // Botão e LED principal com tom de A4 - Lá
 };
+
 
 // Estrutura para armazenar dados de dificuldade
 struct Dificuldade {
@@ -66,6 +71,7 @@ void reiniciarJogo();
 void nivelDificuldade();
 void carregarPontuacoesAltas();
 void salvarPontuacaoAlta(int player, int score);
+void selecionarModoJogo(); // Adicionado
 
 void setup() {
     Serial.begin(9600);                         // Inicializar comunicação serial
@@ -79,25 +85,36 @@ void setup() {
     // Inicializar Buzzer
     pinMode(BUZZER_PIN, OUTPUT);                // Configurar Buzzer como saída
 
+    // Inicializar LED Main
+    pinMode(LED_MAIN, OUTPUT);                   // Configurar LED_MAIN como saída
+    digitalWrite(LED_MAIN, LOW);                 // Garantir que o LED_MAIN esteja desligado inicialmente
+
+    // Inicializar Botão Main
+    pinMode(BUTTON_MAIN, INPUT_PULLUP);          // Configurar BUTTON_MAIN como entrada com resistor de pull-up
+
     // Inicializar LCD1
     lcd1.begin(16, 2);                           // Inicializar LCD paralelo com 16 colunas e 2 linhas
     lcd1.clear();
 
-    // Carregar pontuações ao iniciar o jogo
-    carregarPontuacoesAltas();
-
     // Exibir informações iniciais para iniciar o jogo
     lcd1.setCursor(0, 0);
-    lcd1.print("Genius Memory - Game");
+    lcd1.print("Genius Memory");
     lcd1.setCursor(0, 1);
-    lcd1.print("Pressione S");
+    lcd1.print("Start Game...");
 
     // Semear o gerador de números aleatórios
     randomSeed(analogRead(0));
 
-    // Iniciar o jogo
+    // Aqui, iniciamos um loop para aguardar a pressão do botão
+    while (digitalRead(BUTTON_MAIN) == HIGH) {
+        // Esperar o botão principal ser pressionado
+        delay(100);
+    }
+
+    // Agora que o botão foi pressionado, chamamos iniciarJogo
     iniciarJogo();
 }
+
 
 void loop() {
     if (!isGameOver) {
@@ -110,21 +127,30 @@ void loop() {
         lcd1.setCursor(0, 1);
         lcd1.print("P1: ");
         lcd1.print(rounds[0]);
-        lcd1.print(" P2: ");
-        lcd1.print(rounds[1]);
+        if (numPlayers == 2) {
+            lcd1.print(" P2: ");
+            lcd1.print(rounds[1]);
+        }
 
         delay(2000); // Pequena pausa para que a pontuação seja visível
 
-        if (rounds[0] > rounds[1]) {
+        if (numPlayers == 1) {
             lcd1.setCursor(0, 1);
-            lcd1.print("Jogador 1 Ganhou!");
-        } else if (rounds[1] > rounds[0]) {
-            lcd1.setCursor(0, 1);
-            lcd1.print("Jogador 2 Ganhou!");
+            lcd1.print("Jogador 1: ");
+            lcd1.print(rounds[0]);
         } else {
-            lcd1.setCursor(0, 1);
-            lcd1.print("Empate!");
+            if (rounds[0] > rounds[1]) {
+                lcd1.setCursor(0, 1);
+                lcd1.print("Jogador 1 Ganhou!");
+            } else if (rounds[1] > rounds[0]) {
+                lcd1.setCursor(0, 1);
+                lcd1.print("Jogador 2 Ganhou!");
+            } else {
+                lcd1.setCursor(0, 1);
+                lcd1.print("Empate!");
+            }
         }
+
         delay(3000); // Aguardar 3 segundos para mostrar a mensagem final
         reiniciarJogo();
     }
@@ -138,7 +164,7 @@ void jogarJogo() {
     while (true) { // Loop principal do jogo
         gerarSequencia(); // Gera a sequência antes de cada rodada
 
-        for (int player = 0; player < 2; player++) { // Loop para os dois jogadores
+        for (int player = 0; player < numPlayers; player++) { // Loop para os jogadores selecionados
             mostrarSequencia();     // Mostra a sequência para o jogador
             playerPosition = 0; // Reinicia a posição do jogador
             correctCount = 0;   // Reinicia o contador de acertos
@@ -197,7 +223,7 @@ void jogarJogo() {
             break; // Encerrar o loop principal do jogo
         }
 
-        // Aumentar o nível apenas após ambos os jogadores completarem a rodada atual
+        // Aumentar o nível apenas após todos os jogadores completarem a rodada atual
         if (currentLevel < MAX_LEVELS) {
             currentLevel++; // Aumenta o nível do jogo
             Serial.print("Avançando para o nível: ");
@@ -241,7 +267,6 @@ void mostrarSequencia() {
     }
 }
 
-
 void verificarEntradaJogador() {
     for (int i = 0; i < NUM_LEDS; i++) {
         if (digitalRead(componentes[i].botao) == LOW) {
@@ -280,7 +305,6 @@ void verificarEntradaJogador() {
     }
 }
 
-
 void tocarMelodiaInicio() {
     int melody[] = {262, 294, 330, 349, 392, 440}; // Notas da melodia
     int durations[] = {200, 200, 200, 200, 200, 400}; // Duração de cada nota
@@ -293,37 +317,55 @@ void tocarMelodiaInicio() {
 }
 
 void iniciarJogo() {
-    Serial.println("Iniciando o jogo! Pressione (s) para começar.");
+    Serial.println("Iniciando o jogo! Pressione o Button Main para começar.");
+    lcd1.print("Pressione Main");
     lcd1.clear();
     lcd1.setCursor(0, 0);
-    lcd1.print("Pressione 'S' para");
+    lcd1.print("Preparando...");
     lcd1.setCursor(0, 1);
-    lcd1.print("Começar");
+    lcd1.print("Modo de Jogo :");
 
+    // Aguarda até o botão Main ser pressionado
     while (true) {
-        if (Serial.available()) {
-            String response = Serial.readString();
-            response.trim();
-            if (response.equalsIgnoreCase("s")) {
-                Serial.println("Jogo começando...");
-                tocarMelodiaInicio(); // Toca a melodia de início
-                nivelDificuldade(); // Chama a função para escolher o nível de dificuldade
-                lcd1.clear();
-                lcd1.setCursor(0, 0);
-                lcd1.print("Jogo Começou!");
-                lcd1.setCursor(0, 1);
-                lcd1.print("Boa Sorte!");
-                delay(2000);
-                isGameOver = false;
-                rounds[0] = 0;
-                rounds[1] = 0;
-                sequenceLength = 0; // Reiniciar o comprimento da sequência ao iniciar o jogo
-                currentLevel = 1;    // Reiniciar o nível atual
-                break;
-            }
+        // Verificar se o botão Main (BUTTON_MAIN) está pressionado
+        if (digitalRead(BUTTON_MAIN) == LOW) {
+            delay(200); // Debounce
+
+            // Acender o LED_MAIN para indicar que o jogo está iniciando
+            digitalWrite(LED_MAIN, HIGH);
+            delay(500); // LED permanece aceso por 500ms
+            digitalWrite(LED_MAIN, LOW);
+
+            // Tocar o tom do botão principal
+            tone(BUZZER_PIN, componentes[4].tom); // Toca o tom correspondente ao botão principal
+            delay(500); // Duração do som
+            noTone(BUZZER_PIN); // Para o som após a duração
+
+            Serial.println("Jogo começando...");
+
+            tocarMelodiaInicio(); // Toca a melodia de início após pressionar o botão Main
+            selecionarModoJogo();  // Chama a função para escolher o modo de jogo
+            nivelDificuldade();    // Chama a função para escolher o nível de dificuldade
+            
+            lcd1.clear();
+            lcd1.setCursor(0, 0);
+            lcd1.print("Jogo Começou!");
+            lcd1.setCursor(0, 1);
+            lcd1.print("Boa Sorte!");
+            delay(2000);
+
+            isGameOver = false;
+            rounds[0] = 0;
+            rounds[1] = 0;
+            sequenceLength = 0; // Reiniciar o comprimento da sequência ao iniciar o jogo
+            currentLevel = 1;    // Reiniciar o nível atual
+            
+            carregarPontuacoesAltas(); // Carregar pontuações após seleção do modo
+            break;
         }
     }
 }
+
 
 
 void reiniciarJogo() {
@@ -339,32 +381,88 @@ void reiniciarJogo() {
 
     lcd1.clear();
     lcd1.setCursor(0, 0);
-    lcd1.print("Jogo Reiniciado");
+    lcd1.print("Jogo Genius");
     lcd1.setCursor(0, 1);
-    lcd1.print("Pressione 'S'");
+    lcd1.print("Reiniciando...");
     delay(2000);
     iniciarJogo();
 }
 
-// Função para selecionar o nível de dificuldade
+// Função para selecionar o modo de jogo (1 ou 2 jogadores) usando os botões
+void selecionarModoJogo() {
+    lcd1.clear();
+    lcd1.setCursor(0, 0);
+    lcd1.print("1 ou 2 Jogadores?");
+    lcd1.setCursor(0, 1);
+    lcd1.print("Verm.:1  Verde:2");
+
+    while (true) {
+        // Verificar se o botão Vermelho (BUTTONS[0]) está pressionado para 1 Jogador
+        if (digitalRead(BUTTONS[0]) == LOW) {
+            delay(200); // Debounce
+            numPlayers = 1;
+            Serial.println("Modo de jogo: 1 Jogador");
+            lcd1.clear();
+            lcd1.setCursor(0, 0);
+            lcd1.print("Modo: 1 Jogador");
+            lcd1.setCursor(0, 1);
+            lcd1.print("Preparando...");
+            tone(BUZZER_PIN, componentes[0].tom); // Toca o tom do botão vermelho
+            delay(500); // Toca por meio segundo
+            noTone(BUZZER_PIN); // Para o som após a duração
+            delay(2000); // Pausa para visualizar a mensagem
+            break;
+        }
+        // Verificar se o botão Verde (BUTTONS[1]) está pressionado para 2 Jogadores
+        if (digitalRead(BUTTONS[1]) == LOW) {
+            delay(200); // Debounce
+            numPlayers = 2;
+            Serial.println("Modo de jogo: 2 Jogadores");
+            lcd1.clear();
+            lcd1.setCursor(0, 0);
+            lcd1.print("Modo: 2 Jogadores");
+            lcd1.setCursor(0, 1);
+            lcd1.print("Preparando...");
+            tone(BUZZER_PIN, componentes[1].tom); // Toca o tom do botão verde
+            delay(500); // Toca por meio segundo
+            noTone(BUZZER_PIN); // Para o som após a duração
+            delay(2000); // Pausa para visualizar a mensagem
+            break;
+        }
+    }
+}
+
+
 void nivelDificuldade() {
     lcd1.clear();
     lcd1.setCursor(0, 0);
-    lcd1.print("Escolha Dificuldade");
+    lcd1.print("Qual Dificuldade?");
     lcd1.setCursor(0, 1);
-    lcd1.print("1:I 2:M 3:D 4:H");
+    // Vermelho/RED (R) - Iniciante
+    // Verde/GREEN (G) - Media
+    // Azul/BLUE (B) - Dificil
+    // Amarelo/YELLOW (Y) - Muito DIficil
+    lcd1.print("R:I G:M B:D Y:H");
 
     while (true) {
-        if (Serial.available()) {
-            char choice = Serial.read();
-            int index = choice - '1'; // Converte o caractere para índice
+        for (int i = 0; i < NUM_LEDS; i++) {
+            if (digitalRead(componentes[i].botao) == LOW) {
+                delay(200); // Debounce
 
-            // Verifica se o índice está dentro do intervalo
-            if (index >= 0 && index < sizeof(dificuldades) / sizeof(dificuldades[0])) {
-                ledDelay = dificuldades[index].ledDelay; // Define o ledDelay com base na escolha
+                // Define a dificuldade com base no botão pressionado
+                ledDelay = dificuldades[i].ledDelay; // Utiliza a struct Dificuldade
                 Serial.print("Dificuldade: ");
-                Serial.println(dificuldades[index].nome); // Exibe o nome da dificuldade escolhida
-                break; // Sai do loop
+                Serial.println(dificuldades[i].nome); // Exibe o nome da dificuldade no Serial
+
+                // Exibe a dificuldade selecionada no LCD
+                lcd1.clear();
+                lcd1.setCursor(0, 0);
+                lcd1.print("Dificuldade: ");
+                lcd1.setCursor(0, 1);
+                lcd1.print(dificuldades[i].nome); // Exibe o nome da dificuldade selecionada
+                delay(2000); // Pausa para visualização antes de sair
+
+                return; // Sai da função após selecionar a dificuldade
             }
         }
     }
@@ -375,13 +473,33 @@ void nivelDificuldade() {
 // Função para carregar as pontuações altas
 void carregarPontuacoesAltas() {
     // Carregar pontuações do EEPROM
-    rounds[0] = EEPROM.read(0);
-    rounds[1] = EEPROM.read(1);
+    // Endereços:
+    // 0: Player 1 - 1 Jogador (modo 1)
+    // 1: Player 1 - 2 Jogadores (modo 2)
+    // 2: Player 2 - 2 Jogadores (modo 2)
+   // Carregar pontuações do EEPROM
+    for (int i = 0; i < 3; i++) {
+        rounds[i] = EEPROM.read(i);
+        if (rounds[i] == 255) { 
+            rounds[i] = 0;
+        }
+    }
+
 }
 
 // Função para salvar a pontuação mais alta
 void salvarPontuacaoAlta(int player, int score) {
-    if (score > EEPROM.read(player)) {
-        EEPROM.write(player, score);
+    if (numPlayers == 1) {
+        // Salvar pontuação para 1 jogador
+        if (score > EEPROM.read(0)) {
+            EEPROM.write(0, score);
+        }
+    } else {
+        // Salvar pontuação para 2 jogadores
+        if (player == 0 && score > EEPROM.read(1)) {
+            EEPROM.write(1, score);
+        } else if (player == 1 && score > EEPROM.read(2)) {
+            EEPROM.write(2, score);
+        }
     }
 }
