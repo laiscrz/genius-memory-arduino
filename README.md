@@ -57,7 +57,7 @@ A caixa do protótipo será projetada no estilo do **Nintendo Switch**, utilizan
 
 ## 🫂 Integrantes
 
-Aqui estão os membros do grupo que participaram durante desenvolvimento desta Checkpoint.
+Aqui estão os membros do grupo que participaram durante desenvolvimento deste Checkpoint.
 
 * **RM 552258 - Laís Alves da Silva Cruz**
   - Turma: 2TDSPH
