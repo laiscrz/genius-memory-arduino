@@ -281,6 +281,17 @@ void verificarEntradaJogador() {
 }
 
 
+void tocarMelodiaInicio() {
+    int melody[] = {262, 294, 330, 349, 392, 440}; // Notas da melodia
+    int durations[] = {200, 200, 200, 200, 200, 400}; // Duração de cada nota
+
+    for (int i = 0; i < 6; i++) {
+        tone(BUZZER_PIN, melody[i], durations[i]);
+        delay(durations[i] * 1.4);
+        noTone(BUZZER_PIN);
+    }
+}
+
 void iniciarJogo() {
     Serial.println("Iniciando o jogo! Pressione (s) para começar.");
     lcd1.clear();
@@ -295,6 +306,7 @@ void iniciarJogo() {
             response.trim();
             if (response.equalsIgnoreCase("s")) {
                 Serial.println("Jogo começando...");
+                tocarMelodiaInicio(); // Toca a melodia de início
                 nivelDificuldade(); // Chama a função para escolher o nível de dificuldade
                 lcd1.clear();
                 lcd1.setCursor(0, 0);
@@ -312,6 +324,7 @@ void iniciarJogo() {
         }
     }
 }
+
 
 void reiniciarJogo() {
     isGameOver = false;
