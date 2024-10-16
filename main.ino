@@ -205,6 +205,19 @@ void loop() {
                 delay(500);
                 digitalWrite(LED_MAIN, LOW);
                 delay(500);
+
+                // Verificar se o botão MAIN foi pressionado para reiniciar o jogo
+                if (digitalRead(BUTTON_MAIN) == LOW) { // Assumindo que o botão MAIN está configurado como pull-up
+                    delay(200); // Debounce do botão
+                    lcd1.clear();
+                    lcd1.setCursor(0, 0);
+                    lcd1.print("Reiniciando");
+                    lcd1.setCursor(0, 1);
+                    lcd1.print("Jogo...");
+                    delay(2000);
+                    reiniciarJogo(); 
+                    break; 
+                }
             }
         }
     }
