@@ -1,4 +1,4 @@
-#include <LiquidCrystal.h>
+#include <LiquidCrystal_I2C.h>
 #include <EEPROM.h>
 
 // Definições dos pinos
@@ -26,8 +26,7 @@ int numPlayers = 2; // Variável para armazenar o número de jogadores (1 ou 2)
 
 bool continuarJogo = true;
 
-// Inicialização do LCD1602 padrão (paralelo)
-LiquidCrystal lcd1(7, 13, A0, A1, A2, A3);
+LiquidCrystal_I2C lcd1(0x27, 16, 2);
 
 // Declaração de 'correctCount' para uso em ambas as funções
 int correctCount = 0;
@@ -123,7 +122,8 @@ void setup() {
     pinMode(BUTTON_MAIN, INPUT_PULLUP);          // Configurar BUTTON_MAIN como entrada com resistor de pull-up
 
     // Inicializar LCD1
-    lcd1.begin(16, 2);                           // Inicializar LCD paralelo com 16 colunas e 2 linhas
+    lcd1.begin(16, 2);                            // Inicializa o LCD I2C
+    lcd1.backlight();                          // Ativa a luz de fundo do LCD
     lcd1.clear();
 
     // Exibir informações iniciais para iniciar o jogo
