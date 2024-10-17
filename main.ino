@@ -2,34 +2,31 @@
 #include <EEPROM.h>
 
 // Definições dos pinos
+// CONST
 const int LED_PINS[] = {8, 9, 10, 11};        // LEDs conectados nos pinos 8, 9, 10, 11
 const int BUTTONS[] = {2, 3, 4, 5};          // Botões conectados nos pinos 2, 3, 4, 5
 const int BUZZER_PIN = 6;                     // Buzzer conectado no pino 6
 const int BUTTON_MAIN = 0;                    // Botão Principal conectado no pino 1
 const int LED_MAIN = 12;                      // LED Principal conectado no pino 12
 const int NUM_LEDS = sizeof(LED_PINS) / sizeof(LED_PINS[0]);
+const int MAX_LEVELS = 5;                     // Limite de níveis
+const int POINTS_PER_LEVEL = 3;               // Pontos ganhos por nível completo
+const int POINTS_FOR_CORRECT = 1;             // Pontos por LED correto antes do erro
 const long SERIAL_TIMEOUT = 10000;            // Tempo de espera para entrada serial
 int sequence[100];                            // Sequência de LEDs
 int playerPosition = 0;                       // Posição atual do jogador na sequência
 int sequenceLength = 0;                       // Comprimento atual da sequência
 int rounds[2] = {0, 0};                       // Contador de rodadas para dois jogadores
 int currentPlayer = 0;                        // Jogador atual (0 ou 1)
-bool isGameOver = false;                      // Estado do jogo
-const int MAX_LEVELS = 5;                     // Limite de níveis
-const int POINTS_PER_LEVEL = 3;               // Pontos ganhos por nível completo
-const int POINTS_FOR_CORRECT = 1;             // Pontos por LED correto antes do erro
 int currentLevel = 1;                          // Nível atual do jogo
-
 int ledDelay; // Variável para armazenar a velocidade dos LEDs
-
 int numPlayers = 2; // Variável para armazenar o número de jogadores (1 ou 2)
-
+// Declaração de 'correctCount' para uso em ambas as funções
+int correctCount = 0;
+bool isGameOver = false;                      // Estado do jogo
 bool continuarJogo = true;
 
 LiquidCrystal_I2C lcd1(0x27, 16, 2);
-
-// Declaração de 'correctCount' para uso em ambas as funções
-int correctCount = 0;
 
 // Componentes do jogo
 struct Componente {
@@ -73,33 +70,6 @@ void nivelDificuldade();
 void carregarPontuacoesAltas();
 void salvarPontuacaoAlta(int player, int score);
 void selecionarModoJogo();
-
-void tocarMelodiaInicio() {
-    int melody[] = {262, 294, 330, 349, 392, 440}; // Notas da melodia
-    int durations[] = {200, 200, 200, 200, 200, 400}; // Duração de cada nota
-
-    for (int i = 0; i < 6; i++) {
-        tone(BUZZER_PIN, melody[i], durations[i]);
-        delay(durations[i] * 1.4);
-        noTone(BUZZER_PIN);
-    }
-}
-
-// Função para tocar a melodia final
-void tocarMelodiaFinal() {
-    int melody[] = {330, 330, 330, 392, 330, 523, 494,440};
-    int durations[] = {250, 250, 250, 250, 250, 250, 250, 500};
-
-    for (int i = 0; i < sizeof(melody) / sizeof(melody[0]); i++) {
-        if (melody[i] != 0) { 
-            tone(BUZZER_PIN, melody[i], durations[i]);
-        }
-        delay(durations[i] * 1.3);
-        noTone(BUZZER_PIN); 
-        delay(50); 
-    }
-}
-
 
 
 void setup() {
@@ -220,6 +190,33 @@ void loop() {
                 }
             }
         }
+    }
+}
+
+
+void tocarMelodiaInicio() {
+    int melody[] = {262, 294, 330, 349, 392, 440}; // Notas da melodia
+    int durations[] = {200, 200, 200, 200, 200, 400}; // Duração de cada nota
+
+    for (int i = 0; i < 6; i++) {
+        tone(BUZZER_PIN, melody[i], durations[i]);
+        delay(durations[i] * 1.4);
+        noTone(BUZZER_PIN);
+    }
+}
+
+// Função para tocar a melodia final
+void tocarMelodiaFinal() {
+    int melody[] = {330, 330, 330, 392, 330, 523, 494,440};
+    int durations[] = {250, 250, 250, 250, 250, 250, 250, 500};
+
+    for (int i = 0; i < sizeof(melody) / sizeof(melody[0]); i++) {
+        if (melody[i] != 0) { 
+            tone(BUZZER_PIN, melody[i], durations[i]);
+        }
+        delay(durations[i] * 1.3);
+        noTone(BUZZER_PIN); 
+        delay(50); 
     }
 }
 
@@ -422,8 +419,6 @@ void iniciarJogo() {
         }
     }
 }
-
-
 
 void reiniciarJogo() {
     isGameOver = false;
