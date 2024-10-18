@@ -1,5 +1,10 @@
-#include <LiquidCrystal_I2C.h>
+#include <Wire.h> // Biblioteca para comunicação I2C
+#include <LiquidCrystal_I2C.h> // Biblioteca para o display 20x4 
 #include <EEPROM.h>
+
+#define col 16 // Número de colunas do display
+#define lin  2 // Número de linhas do display
+#define ende  0x27 // Endereço do display
 
 // Definições dos pinos
 // CONST
@@ -26,7 +31,7 @@ int correctCount = 0;
 bool isGameOver = false;                      // Estado do jogo
 bool continuarJogo = true;
 
-LiquidCrystal_I2C lcd1(0x27, 16, 2);
+LiquidCrystal_I2C lcd1(ende, col, lin); // Inicializa o LCD
 
 // Componentes do jogo
 struct Componente {
@@ -92,7 +97,7 @@ void setup() {
     pinMode(BUTTON_MAIN, INPUT_PULLUP);          // Configurar BUTTON_MAIN como entrada com resistor de pull-up
 
     // Inicializar LCD1
-    lcd1.begin(16, 2);                            // Inicializa o LCD I2C
+    lcd1.init(); // Inicia a comunicação com o display                            // Inicializa o LCD I2C
     lcd1.backlight();                          // Ativa a luz de fundo do LCD
     lcd1.clear();
 
