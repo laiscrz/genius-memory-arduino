@@ -1,5 +1,5 @@
-#include <Wire.h> // Biblioteca para comunicação I2C
-#include <LiquidCrystal_I2C.h> // Biblioteca para o display 20x4 
+#include <Wire.h> 
+#include <LiquidCrystal_I2C.h> 
 #include <EEPROM.h>
 
 #define col 16 // Número de colunas do display
@@ -7,7 +7,6 @@
 #define ende  0x27 // Endereço do display
 
 // Definições dos pinos
-// CONST
 const int LED_PINS[] = {8, 9, 10, 11};        // LEDs conectados nos pinos 8, 9, 10, 11
 const int BUTTONS[] = {2, 3, 4, 5};          // Botões conectados nos pinos 2, 3, 4, 5
 const int BUZZER_PIN = 6;                     // Buzzer conectado no pino 6
