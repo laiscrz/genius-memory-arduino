@@ -10,7 +10,15 @@ Desenvolver um protótipo do jogo "Genius" utilizando Arduino, com o intuito de 
 ## 🚀 Funcionalidades
 
 ### 📡 Monitor Serial
-O jogo pode ser jogado pelos botões físicos e visualizar pelo Display LCD I2C, permitindo maior flexibilidade na interação. 🖥️🔄
+O jogo pode ser jogado usando botões físicos e visualizado no Display LCD I2C, proporcionando uma interação mais flexível e intuitiva. 🖥️✨🔄
+
+### 🕹️ Modos de Jogo
+
+| **Modo**         | **Botão para Seleção** | **Descrição**                                                                    |
+|------------------|------------------------|----------------------------------------------------------------------------------|
+| 🔴 **1 Jogador** | Vermelho               | O jogador deve memorizar e repetir a sequência de LEDs sozinho. Ideal para treinar habilidades de memória. |
+| 🟢 **2 Jogadores**| Verde                  | Dois jogadores se revezam para repetir a sequência. A sequência cresce a cada rodada, e o jogador que errar perde. |
+
 
 ### 🎮 Níveis de Dificuldade
 
@@ -20,13 +28,6 @@ O jogo pode ser jogado pelos botões físicos e visualizar pelo Display LCD I2C,
 | 🟢 **Médio**       | Verde              | Sequências moderadas, tempo de reação médio   | 700                         |
 | 🔵 **Difícil**     | Azul               | Sequências desafiadoras, tempo de reação rápido| 500                         |
 | 🟡 **Muito Difícil**| Amarelo            | Sequências complexas, tempo de reação curto   | 300                         |
-
-### 🕹️ Modos de Jogo
-
-| **Modo**         | **Botão para Seleção** | **Descrição**                                                                    |
-|------------------|------------------------|----------------------------------------------------------------------------------|
-| 🔴 **1 Jogador** | Vermelho               | O jogador deve memorizar e repetir a sequência de LEDs sozinho. Ideal para treinar habilidades de memória. |
-| 🟢 **2 Jogadores**| Verde                  | Dois jogadores se revezam para repetir a sequência. A sequência cresce a cada rodada, e o jogador que errar perde. |
 
 ### 🏆 Pontuação
 
