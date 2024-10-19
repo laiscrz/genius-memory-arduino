@@ -59,8 +59,8 @@ struct Dificuldade {
 // Definição dos níveis de dificuldade
 Dificuldade dificuldades[] = {
     {1000, "Iniciante"},   // Dificuldade 1
-    {500, "Média"},        // Dificuldade 2
-    {250, "Difícil"},      // Dificuldade 3
+    {500, "Media"},        // Dificuldade 2
+    {250, "Dificil"},      // Dificuldade 3
     {125, "Muito Difícil"} // Dificuldade 4
 };
 
@@ -128,7 +128,7 @@ void loop() {
         // Exibir mensagem de Game Over no LCD1
         lcd1.clear();
         lcd1.setCursor(0, 0);
-        lcd1.print("Game Over!");
+         lcd1.print("Jogo Completo!");
         lcd1.setCursor(0, 1);
         lcd1.print("P1: ");
         lcd1.print(rounds[0]);
@@ -168,14 +168,13 @@ void loop() {
             // Exibir mensagem de agradecimento
             lcd1.clear();
             lcd1.setCursor(0, 0);
-            lcd1.print("Jogo Finalizado!");
+            lcd1.print("Jogo Terminado!");
             lcd1.setCursor(0, 1);
             lcd1.print("Ate a proxima!");
             delay(2000); // Pausa para exibir a mensagem antes de encerrar
 
             // Entrar em um loop infinito para encerrar o programa
             while (true) {
-                // Opcional: Piscar o LED_MAIN para indicar que o jogo está encerrado
                 digitalWrite(LED_MAIN, HIGH);
                 delay(500);
                 digitalWrite(LED_MAIN, LOW);
@@ -258,11 +257,11 @@ void jogarJogo() {
                     // O jogador completou a sequência corretamente
                     if (correctCount == sequenceLength) {
                         rounds[player] += POINTS_PER_LEVEL; // Incrementa a pontuação por completar o nível
-                        Serial.print("Parabéns! Jogador ");
+                        Serial.print("Parabens! Jogador ");
                         Serial.print(player + 1);
-                        Serial.print(" completou o nível ");
+                        Serial.print(" completou o nivel ");
                         Serial.print(currentLevel);
-                        Serial.print(" Pontuação: ");
+                        Serial.print(" Pontuacao: ");
                         Serial.println(rounds[player]);
                     } else if (correctCount > 0) {
                         rounds[player] += correctCount; // Adiciona os pontos por acertos antes do erro
@@ -274,7 +273,7 @@ void jogarJogo() {
                     } else {
                         Serial.print("Jogador ");
                         Serial.print(player + 1);
-                        Serial.println(" não acertou nada.");
+                        Serial.println(" nao acertou nada.");
                     }
                     break; // Saia do loop se o jogador completou a sequência
                 }
@@ -289,14 +288,14 @@ void jogarJogo() {
         // Verificar se o nível atual é o último
         if (currentLevel >= MAX_LEVELS) {
             isGameOver = true;
-            Serial.println("Nível máximo atingido. Fim do jogo.");
+            Serial.println("Nivel maximo atingido. Fim do jogo.");
             break; // Encerrar o loop principal do jogo
         }
 
         // Aumentar o nível apenas após todos os jogadores completarem a rodada atual
         if (currentLevel < MAX_LEVELS) {
             currentLevel++; // Aumenta o nível do jogo
-            Serial.print("Avançando para o nível: ");
+            Serial.print("Avancando para o nivel: ");
             Serial.println(currentLevel);
         }
     }
@@ -307,7 +306,7 @@ void gerarSequencia() {
     if (sequenceLength < MAX_LEVELS) {
         sequence[sequenceLength] = random(0, NUM_LEDS); // Adicionar um novo LED
         sequenceLength++; // Aumentar o comprimento da sequência após adicionar
-        Serial.print("Sequência gerada para o nível ");
+        Serial.print("Sequencia gerada para o nivel ");
         Serial.println(currentLevel);
     }
 }
@@ -315,7 +314,7 @@ void gerarSequencia() {
 void mostrarSequencia() {
     lcd1.clear();
     lcd1.setCursor(0, 0);
-    lcd1.print("Sequência:");
+    lcd1.print("Sequencia:");
 
     for (int i = 0; i < sequenceLength; i++) {
         int ledIndex = sequence[i];
@@ -408,7 +407,7 @@ void iniciarJogo() {
             
             lcd1.clear();
             lcd1.setCursor(0, 0);
-            lcd1.print("Jogo Começou!");
+            lcd1.print("Jogo Comecou!");
             lcd1.setCursor(0, 1);
             lcd1.print("Boa Sorte!");
             delay(2000);
