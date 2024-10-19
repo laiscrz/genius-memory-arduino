@@ -7,39 +7,54 @@
 ## 🎯 Objetivo
 Desenvolver um protótipo do jogo "Genius" utilizando Arduino, com o intuito de avaliar a compreensão dos alunos em programação, montagem de circuitos e integração de projetos.
 
-## 🔧 Materiais Necessários
+## 🚀 Funcionalidades
+
+### 📡 Monitor Serial
+O jogo pode ser jogado pelos botões físicos e visualizar pelo Display LCD I2C, permitindo maior flexibilidade na interação. 🖥️🔄
+
+### 🎮 Níveis de Dificuldade
+
+| **Nível**         | **Botão (Cor)**    | **Descrição**                                  | **Velocidade dos LEDs (ms)** |
+|-------------------|--------------------|-----------------------------------------------|-----------------------------|
+| 🟠 **Iniciante**   | Vermelho           | Sequências fáceis, tempo de reação longo      | 1000                        |
+| 🟢 **Médio**       | Verde              | Sequências moderadas, tempo de reação médio   | 700                         |
+| 🔵 **Difícil**     | Azul               | Sequências desafiadoras, tempo de reação rápido| 500                         |
+| 🟡 **Muito Difícil**| Amarelo            | Sequências complexas, tempo de reação curto   | 300                         |
+
+### 🕹️ Modos de Jogo
+
+| **Modo**         | **Botão para Seleção** | **Descrição**                                                                    |
+|------------------|------------------------|----------------------------------------------------------------------------------|
+| 🔴 **1 Jogador** | Vermelho               | O jogador deve memorizar e repetir a sequência de LEDs sozinho. Ideal para treinar habilidades de memória. |
+| 🟢 **2 Jogadores**| Verde                  | Dois jogadores se revezam para repetir a sequência. A sequência cresce a cada rodada, e o jogador que errar perde. |
+
+### 🏆 Pontuação
+
+| **Ação**                               | **Pontos Ganhados/Perdidos**                | **Descrição**                                                                          |
+|---------------------------------------|---------------------------------------------|---------------------------------------------------------------------------------------|
+| ✅ **Acertar um LED na sequência**     | +1 ponto por LED acertado                   | O jogador ganha 1 ponto para cada LED corretamente lembrado na sequência.              |
+| ❌ **Errar uma sequência**             | 0 pontos                                    | O jogador não ganha pontos por uma sequência incorreta.                                |
+| ✅ **Completar um nível**              | +3 pontos por nível completo                | O jogador ganha 3 pontos extras ao completar um nível inteiro com sucesso.             |
+| 🏁 **Terminar o jogo**                 | Pontuação total do jogador                  | A pontuação total dos jogadores é exibida ao final, determinando o vencedor.           |
+
+#### 📜 Regras de Pontuação:
+- **1 Jogador**: A pontuação vai sendo acumulada com cada sequência correta, com penalidades aplicadas por erros.
+- **2 Jogadores**: Os pontos são acumulados individualmente. A vez passa para o outro jogador em caso de erro, e os pontos são ajustados conforme o desempenho de cada um.
+
+## 🔌🔧 Materiais Necessários e Montagem do Circuito
 - 🖥️ **Arduino UNO**
-- 💡 **4 (ou mais) LEDs** de cores variadas
+- 🌈 **4 (ou mais) LEDs** de cores variadas
 - 🔘 **4 (ou mais) botões**
 - 🎵 **1 Buzzer**
-- 🔌 **Resistores, jumpers e uma protoboard**
-- 🖥️ **Display LCD**
-
-## 📑 Instruções de Montagem
-1. **Conecte os LEDs**: Ligue cada LED em um pino digital do Arduino.
-2. **Conecte os Botões**: Conecte os botões aos pinos digitais usando resistores de pull-up.
-3. **Conecte o Buzzer**: Conecte o buzzer a um pino digital do Arduino.
-4. **Conecte o Display LCD**: Conecte o display LCD para mostrar informações relevantes.
+- 🧰 **Resistores, jumpers e uma protoboard**
+- 🖥️ **Display LCD I2C**
+  
+![Diagrama do Circuito](https://github.com/user-attachments/assets/e6d9cc21-0a01-4018-a283-f8501478b470) 
 
 ## ⚙️ Programação
-O código para o jogo "Genius" está disponível no seguinte link:
+Confira a simulação online do código e do circuito para o jogo "Genius" no link a seguir:
 
 [**🚀 Projeto Genius no Wokwi**](https://wokwi.com/projects/411729434682390529)
-
-### 📜 Explicação do Código
-- O jogo gera uma sequência aleatória de LEDs que o jogador deve reproduzir.
-- O jogador interage com os botões para inserir a sequência correta.
-- O buzzer emite sons específicos para cada LED aceso.
-- O display LCD exibe mensagens e pontuações, aprimorando a experiência do usuário.
-
-## ⚙️ Fases do Jogo
-O jogo possui 4 níveis de dificuldade, com aumento progressivo na velocidade dos LEDs e na complexidade da sequência a cada nível. 🚀📈
-
-## 📡 Monitor Serial
-O jogo pode ser jogado pelos botões físicos e visualizar pelo Display LCD, permitindo maior flexibilidade na interação. 🖥️🔄
-
-## 🔧 Montagem do Circuito
-![Diagrama do Circuito](https://github.com/user-attachments/assets/6d437544-e65d-49b5-854e-a01f5c2dc503)
 
 ## 💡 Requisitos Funcionais
 ### Requisitos Básicos
