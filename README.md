@@ -42,7 +42,7 @@ O jogo pode ser jogado usando botões físicos e visualizado no Display LCD I2C,
 - **1 Jogador**: A pontuação vai sendo acumulada com cada sequência correta, com penalidades aplicadas por erros.
 - **2 Jogadores**: Os pontos são acumulados individualmente. A vez passa para o outro jogador em caso de erro, e os pontos são ajustados conforme o desempenho de cada um.
 
-## 🔌🔧 Materiais Necessários e Montagem do Circuito
+## 🛠️ Materiais Necessários e Montagem do Circuito
 - 🖥️ **Arduino UNO**
 - 🌈 **4 (ou mais) LEDs** de cores variadas
 - 🔘 **4 (ou mais) botões**
