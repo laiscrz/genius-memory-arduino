@@ -78,19 +78,19 @@ void selecionarModoJogo();
 
 
 void setup() {
-    Serial.begin(9600);                         // Inicializar comunicação serial
+    Serial.begin(9600);                         
     
     // Inicializar LEDs e Botões
     for (int i = 0; i < NUM_LEDS; i++) {
-        pinMode(LED_PINS[i], OUTPUT);             // Configurar LEDs como saída
-        pinMode(BUTTONS[i], INPUT_PULLUP);        // Configurar Botões como entrada com resistor de pull-up
+        pinMode(LED_PINS[i], OUTPUT);             
+        pinMode(BUTTONS[i], INPUT_PULLUP);        
     }
 
     // Inicializar Buzzer
-    pinMode(BUZZER_PIN, OUTPUT);                // Configurar Buzzer como saída
+    pinMode(BUZZER_PIN, OUTPUT);               
 
     // Inicializar LED Main
-    pinMode(LED_MAIN, OUTPUT);                   // Configurar LED_MAIN como saída
+    pinMode(LED_MAIN, OUTPUT);                   
     digitalWrite(LED_MAIN, LOW);                 
 
     // Inicializar Botão Main
@@ -110,13 +110,12 @@ void setup() {
     // Semear o gerador de números aleatórios
     randomSeed(analogRead(0));
 
-    // Aqui, iniciamos um loop para aguardar a pressão do botão
+    // iniciamos um loop para aguardar a pressão do botão
     while (digitalRead(BUTTON_MAIN) == HIGH) {
-        // Esperar o botão principal ser pressionado
-        delay(100);
+      delay(100);
     }
 
-    // Agora que o botão foi pressionado, chamamos iniciarJogo
+    // botão foi pressionado chamamos iniciarJogo
     iniciarJogo();
 }
 
@@ -125,7 +124,6 @@ void loop() {
     if (!isGameOver) {
         jogarJogo();
     } else {
-        // Exibir mensagem de Game Over no LCD1
         lcd1.clear();
         lcd1.setCursor(0, 0);
          lcd1.print("Jogo Completo!");
@@ -156,7 +154,7 @@ void loop() {
             }
         }
 
-        tocarMelodiaFinal(); // Chama a melodia final
+        tocarMelodiaFinal(); 
         delay(3000); 
 
         // Perguntar ao jogador se deseja continuar
@@ -165,15 +163,14 @@ void loop() {
         if (continuarJogo) {
             reiniciarJogo(); // Reinicia o jogo se o jogador quiser continuar
         } else {
-            // Exibir mensagem de agradecimento
             lcd1.clear();
             lcd1.setCursor(0, 0);
             lcd1.print("Jogo Terminado!");
             lcd1.setCursor(0, 1);
             lcd1.print("Ate a proxima!");
-            delay(2000); // Pausa para exibir a mensagem antes de encerrar
+            delay(2000); 
 
-            // Entrar em um loop infinito para encerrar o programa
+            // Entrar em um loop infinito para encerrar o programa (simular)
             while (true) {
                 digitalWrite(LED_MAIN, HIGH);
                 delay(500);
@@ -181,8 +178,8 @@ void loop() {
                 delay(500);
 
                 // Verificar se o botão MAIN foi pressionado para reiniciar o jogo
-                if (digitalRead(BUTTON_MAIN) == LOW) { // Assumindo que o botão MAIN está configurado como pull-up
-                    delay(200); // Debounce do botão
+                if (digitalRead(BUTTON_MAIN) == LOW) { 
+                    delay(200); 
                     lcd1.clear();
                     lcd1.setCursor(0, 0);
                     lcd1.print("Reiniciando");
@@ -230,13 +227,13 @@ void jogarJogo() {
     isGameOver = false; // Garante que o jogo não está terminado
     sequenceLength = 0; // Reinicia a sequência
 
-    while (true) { // Loop principal do jogo
-        gerarSequencia(); // Gera a sequência antes de cada rodada
+    while (true) { 
+        gerarSequencia(); 
 
-        for (int player = 0; player < numPlayers; player++) { // Loop para os jogadores selecionados
-            mostrarSequencia();     // Mostra a sequência para o jogador
-            playerPosition = 0; // Reinicia a posição do jogador
-            correctCount = 0;   // Reinicia o contador de acertos
+        for (int player = 0; player < numPlayers; player++) { 
+            mostrarSequencia();     
+            playerPosition = 0; 
+            correctCount = 0;   
             lcd1.clear();
             lcd1.setCursor(0, 0);
             lcd1.print("Jogador ");
@@ -245,9 +242,8 @@ void jogarJogo() {
             lcd1.print("Sua Vez!");
 
             while (true) { // Loop para o jogador atual
-                verificarEntradaJogador(); // Verifica a entrada do jogador
+                verificarEntradaJogador();
 
-                // Atualiza a posição no display
                 lcd1.setCursor(0, 1);
                 lcd1.print("Pos: ");
                 lcd1.print(playerPosition + 1);
@@ -257,11 +253,13 @@ void jogarJogo() {
                     // O jogador completou a sequência corretamente
                     if (correctCount == sequenceLength) {
                         rounds[player] += POINTS_PER_LEVEL; // Incrementa a pontuação por completar o nível
-                        Serial.print("Parabens! Jogador ");
+                        Serial.print("Parabéns! Jogador ");
                         Serial.print(player + 1);
-                        Serial.print(" completou o nivel ");
+                        Serial.print(" completou o nível ");
                         Serial.print(currentLevel);
-                        Serial.print(" Pontuacao: ");
+                        Serial.print(" e ganhou ");
+                        Serial.print(POINTS_PER_LEVEL);
+                        Serial.println(" pontos. Pontuação total: ");
                         Serial.println(rounds[player]);
                     } else if (correctCount > 0) {
                         rounds[player] += correctCount; // Adiciona os pontos por acertos antes do erro
@@ -269,13 +267,17 @@ void jogarJogo() {
                         Serial.print(player + 1);
                         Serial.print(" acertou ");
                         Serial.print(correctCount);
-                        Serial.println(" LED(s) antes do erro.");
+                        Serial.println(" LED(s) antes de cometer um erro.");
+                        Serial.print("Pontuação total: ");
+                        Serial.println(rounds[player]);
                     } else {
                         Serial.print("Jogador ");
                         Serial.print(player + 1);
-                        Serial.println(" nao acertou nada.");
+                        Serial.println(" não acertou nenhum LED.");
+                        Serial.print("Pontuação total: ");
+                        Serial.println(rounds[player]);
                     }
-                    break; // Saia do loop se o jogador completou a sequência
+                    break; 
                 }
             }
         }
@@ -289,7 +291,7 @@ void jogarJogo() {
         if (currentLevel >= MAX_LEVELS) {
             isGameOver = true;
             Serial.println("Nivel maximo atingido. Fim do jogo.");
-            break; // Encerrar o loop principal do jogo
+            break; 
         }
 
         // Aumentar o nível apenas após todos os jogadores completarem a rodada atual
@@ -304,8 +306,8 @@ void jogarJogo() {
 void gerarSequencia() {
     // Adicionar um novo LED à sequência se ainda não atingiu o nível máximo
     if (sequenceLength < MAX_LEVELS) {
-        sequence[sequenceLength] = random(0, NUM_LEDS); // Adicionar um novo LED
-        sequenceLength++; // Aumentar o comprimento da sequência após adicionar
+        sequence[sequenceLength] = random(0, NUM_LEDS); 
+        sequenceLength++; 
         Serial.print("Sequencia gerada para o nivel ");
         Serial.println(currentLevel);
     }
@@ -321,18 +323,18 @@ void mostrarSequencia() {
         Componente componenteAtual = componentes[ledIndex];
         
         digitalWrite(componenteAtual.led, HIGH);
-        tone(BUZZER_PIN, componenteAtual.tom); // Usa o tom específico
+        tone(BUZZER_PIN, componenteAtual.tom); 
         delay(ledDelay);
         noTone(BUZZER_PIN);
         digitalWrite(componenteAtual.led, LOW);
-        delay(500); // Pausa entre LEDs
+        delay(500); 
 
-        // Atualizar sequência no display
+        
         lcd1.setCursor(0, 1);
-        lcd1.print(componenteAtual.cor); // Exibe a cor do LED
+        lcd1.print(componenteAtual.cor);
         delay(200);
         lcd1.setCursor(0, 1);
-        lcd1.print("         "); // Limpar a linha
+        lcd1.print("         "); 
     }
 }
 
@@ -342,19 +344,19 @@ void verificarEntradaJogador() {
             Componente componenteAtual = componentes[i];
             
             digitalWrite(componenteAtual.led, HIGH);
-            tone(BUZZER_PIN, componenteAtual.tom); // Usa o tom específico
+            tone(BUZZER_PIN, componenteAtual.tom); 
             delay(200);
             noTone(BUZZER_PIN);
             digitalWrite(componenteAtual.led, LOW);
             
-            // Atualizar entrada do jogador no display
+            
             lcd1.setCursor(0, 1);
             lcd1.print("Botao: ");
-            lcd1.print(componenteAtual.cor); // Mostrar a cor do botão
+            lcd1.print(componenteAtual.cor); 
             
             // Verifique se o jogador acertou
             if (sequence[playerPosition] == i) {
-                playerPosition++; // Mova para a próxima posição se acertar
+                playerPosition++; 
                 correctCount++;
             } else {
                 // Jogador errou; exibir mensagem e passar para o próximo jogador
@@ -367,9 +369,9 @@ void verificarEntradaJogador() {
                 
                 // Passar para o próximo jogador
                 playerPosition = sequenceLength; // Forçar o fim do loop
-                break; // Sair do loop de verificação de botões
+                break; 
             }
-            delay(200); // Debounce
+            delay(200); 
         }
     }
 }
@@ -385,25 +387,22 @@ void iniciarJogo() {
 
     // Aguarda até o botão Main ser pressionado
     while (true) {
-        // Verificar se o botão Main (BUTTON_MAIN) está pressionado
         if (digitalRead(BUTTON_MAIN) == LOW) {
             delay(200); // Debounce
 
-            // Acender o LED_MAIN para indicar que o jogo está iniciando
             digitalWrite(LED_MAIN, HIGH);
-            delay(500); // LED permanece aceso por 500ms
+            delay(500); 
             digitalWrite(LED_MAIN, LOW);
 
-            // Tocar o tom do botão principal
-            tone(BUZZER_PIN, componentes[4].tom); // Toca o tom correspondente ao botão principal
-            delay(500); // Duração do som
-            noTone(BUZZER_PIN); // Para o som após a duração
+            tone(BUZZER_PIN, componentes[4].tom); 
+            delay(500); 
+            noTone(BUZZER_PIN); 
 
             Serial.println("Jogo começando...");
 
-            tocarMelodiaInicio(); // Toca a melodia de início após pressionar o botão Main
-            selecionarModoJogo();  // Chama a função para escolher o modo de jogo
-            nivelDificuldade();    // Chama a função para escolher o nível de dificuldade
+            tocarMelodiaInicio(); 
+            selecionarModoJogo(); 
+            nivelDificuldade();    
             
             lcd1.clear();
             lcd1.setCursor(0, 0);
@@ -415,10 +414,10 @@ void iniciarJogo() {
             isGameOver = false;
             rounds[0] = 0;
             rounds[1] = 0;
-            sequenceLength = 0; // Reiniciar o comprimento da sequência ao iniciar o jogo
-            currentLevel = 1;    // Reiniciar o nível atual
+            sequenceLength = 0; 
+            currentLevel = 1;    
             
-            carregarPontuacoesAltas(); // Carregar pontuações após seleção do modo
+            carregarPontuacoesAltas(); 
             break;
         }
     }
@@ -456,7 +455,7 @@ void selecionarModoJogo() {
     while (true) {
         // Verificar se o botão Vermelho (BUTTONS[0]) está pressionado para 1 Jogador
         if (digitalRead(BUTTONS[0]) == LOW) {
-            delay(200); // Debounce
+            delay(200); 
             numPlayers = 1;
             Serial.println("Modo de jogo: 1 Jogador");
             lcd1.clear();
@@ -464,15 +463,15 @@ void selecionarModoJogo() {
             lcd1.print("Modo: 1 Jogador");
             lcd1.setCursor(0, 1);
             lcd1.print("Preparando...");
-            tone(BUZZER_PIN, componentes[0].tom); // Toca o tom do botão vermelho
-            delay(500); // Toca por meio segundo
-            noTone(BUZZER_PIN); // Para o som após a duração
-            delay(2000); // Pausa para visualizar a mensagem
+            tone(BUZZER_PIN, componentes[0].tom); 
+            delay(500); 
+            noTone(BUZZER_PIN); 
+            delay(2000); 
             break;
         }
         // Verificar se o botão Verde (BUTTONS[1]) está pressionado para 2 Jogadores
         if (digitalRead(BUTTONS[1]) == LOW) {
-            delay(200); // Debounce
+            delay(200); 
             numPlayers = 2;
             Serial.println("Modo de jogo: 2 Jogadores");
             lcd1.clear();
@@ -480,10 +479,10 @@ void selecionarModoJogo() {
             lcd1.print("Modo: 2 Jogadores");
             lcd1.setCursor(0, 1);
             lcd1.print("Preparando...");
-            tone(BUZZER_PIN, componentes[1].tom); // Toca o tom do botão verde
-            delay(500); // Toca por meio segundo
-            noTone(BUZZER_PIN); // Para o som após a duração
-            delay(2000); // Pausa para visualizar a mensagem
+            tone(BUZZER_PIN, componentes[1].tom); 
+            delay(500); 
+            noTone(BUZZER_PIN); 
+            delay(2000); 
             break;
         }
     }
@@ -504,22 +503,22 @@ void nivelDificuldade() {
     while (true) {
         for (int i = 0; i < NUM_LEDS; i++) {
             if (digitalRead(componentes[i].botao) == LOW) {
-                delay(200); // Debounce
+                delay(200); 
 
                 // Define a dificuldade com base no botão pressionado
-                ledDelay = dificuldades[i].ledDelay; // Utiliza a struct Dificuldade
+                ledDelay = dificuldades[i].ledDelay; 
                 Serial.print("Dificuldade: ");
-                Serial.println(dificuldades[i].nome); // Exibe o nome da dificuldade no Serial
+                Serial.println(dificuldades[i].nome); 
 
                 // Exibe a dificuldade selecionada no LCD
                 lcd1.clear();
                 lcd1.setCursor(0, 0);
                 lcd1.print("Dificuldade: ");
                 lcd1.setCursor(0, 1);
-                lcd1.print(dificuldades[i].nome); // Exibe o nome da dificuldade selecionada
-                delay(2000); // Pausa para visualização antes de sair
+                lcd1.print(dificuldades[i].nome); 
+                delay(2000); 
 
-                return; // Sai da função após selecionar a dificuldade
+                return; 
             }
         }
     }
@@ -537,18 +536,18 @@ bool perguntarContinuarJogo() {
     // Aguardar a escolha do jogador
     while (true) {
         // Verificar botão Verde (S)
-        if (digitalRead(componentes[1].botao) == LOW) {  // Ajustado para o botão verde estar correto
+        if (digitalRead(componentes[1].botao) == LOW) {  
             tone(BUZZER_PIN, componentes[0].tom);
-            delay(200); // Debouncing simples
+            delay(200); 
             noTone(BUZZER_PIN);
-            return true; // Jogador quer continuar
+            return true; 
         }
         // Verificar botão Vermelho (N)
-        if (digitalRead(componentes[0].botao) == LOW) {  // Ajustado para o botão vermelho estar correto
+        if (digitalRead(componentes[0].botao) == LOW) {  
             tone(BUZZER_PIN, componentes[1].tom);
-            delay(200); // Debouncing simples
+            delay(200); 
             noTone(BUZZER_PIN);
-            return false; // Jogador não quer continuar
+            return false; 
         }
     }
 }
