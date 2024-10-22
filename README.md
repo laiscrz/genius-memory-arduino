@@ -35,7 +35,7 @@ O jogo pode ser jogado usando botões físicos e visualizado no Display LCD I2C,
 |---------------------------------------|---------------------------------------------|---------------------------------------------------------------------------------------|
 | ✅ **Acertar um LED na sequência**     | +1 ponto por LED acertado                   | O jogador ganha 1 ponto para cada LED corretamente lembrado na sequência.              |
 | ❌ **Errar uma sequência**             | 0 pontos                                    | O jogador não ganha pontos por uma sequência incorreta.                                |
-| ✅ **Completar um nível**              | +3 pontos por nível completo                | O jogador ganha 3 pontos extras ao completar um nível inteiro com sucesso.             |
+| ✅ **Completar um nível**              | +5 pontos por nível completo                | O jogador ganha 5 pontos extras ao completar um nível inteiro com sucesso.             |
 | 🏁 **Terminar o jogo**                 | Pontuação total do jogador                  | A pontuação total dos jogadores é exibida ao final, determinando o vencedor.           |
 
 #### 📜 Regras de Pontuação:
