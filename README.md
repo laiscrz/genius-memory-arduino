@@ -62,13 +62,13 @@ Confira a simulação online do código e do circuito para o jogo "Genius" no li
 - **LEDs**: 4 LEDs de cores variadas. 🌈
 - **Botões**: 4 botões, cada um correspondente a um LED. 🔘🔲
 - **Buzzer**: Emissão de som correspondente a cada LED aceso. 🎶🔊
-- **Display LCD**: Exibição de mensagens e pontuações durante o jogo. 🖥️📊
 - **Monitor Serial**: Visualização de informações diretamente no computador. 🖥️🔄 
 
 ### Requisitos Avançados
 - **Níveis de Dificuldade**: Implementar a função `nivelDificuldade()` para ajustar a velocidade dos LEDs conforme o progresso do jogo. ⚙️🚀
 - **Salvar Pontuações**: Utilizar EEPROM para armazenar as pontuações. 💾🏅
 - **Modo de Jogo**: Permitir a escolha entre 1 ou 2 jogadores, alternando entre os modos de forma intuitiva. 🎮👥
+- **Display LCD I2C**: Exibição de mensagens e pontuações durante o jogo. 🖥️📊
 
 ## 📦 Construindo uma Caixa Personalizada
 A caixa do protótipo será projetada no estilo do **Nintendo Switch**, utilizando [OnShape](https://www.onshape.com/) para um design estético e funcional. A impressão em 3D garantirá durabilidade e um visual atraente. 🎮✨
