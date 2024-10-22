@@ -2,35 +2,36 @@
 #include <LiquidCrystal_I2C.h> 
 #include <EEPROM.h>
 
-#define col 16 // Número de colunas do display
-#define lin  2 // Número de linhas do display
-#define ende  0x27 // Endereço do display
+// configuracoes do DISPLAY
+#define col 16 
+#define lin  2 
+#define ende  0x27 
 
 // Definições dos pinos
-const int LED_PINS[] = {8, 9, 10, 11};        // LEDs conectados nos pinos 8, 9, 10, 11
-const int BUTTONS[] = {2, 3, 4, 5};          // Botões conectados nos pinos 2, 3, 4, 5
-const int BUZZER_PIN = 6;                     // Buzzer conectado no pino 6
-const int BUTTON_MAIN = 0;                    // Botão Principal conectado no pino 1
-const int LED_MAIN = 12;                      // LED Principal conectado no pino 12
+const int LED_PINS[] = {8, 9, 10, 11};        
+const int BUTTONS[] = {2, 3, 4, 5};          
+const int BUZZER_PIN = 6;                    
+const int BUTTON_MAIN = 0;                    
+const int LED_MAIN = 12;                      
 const int NUM_LEDS = sizeof(LED_PINS) / sizeof(LED_PINS[0]);
-const int MAX_LEVELS = 5;                     // Limite de níveis
-const int POINTS_PER_LEVEL = 3;               // Pontos ganhos por nível completo
-const int POINTS_FOR_CORRECT = 1;             // Pontos por LED correto antes do erro
-const long SERIAL_TIMEOUT = 10000;            // Tempo de espera para entrada serial
-int sequence[100];                            // Sequência de LEDs
-int playerPosition = 0;                       // Posição atual do jogador na sequência
-int sequenceLength = 0;                       // Comprimento atual da sequência
-int rounds[2] = {0, 0};                       // Contador de rodadas para dois jogadores
-int currentPlayer = 0;                        // Jogador atual (0 ou 1)
-int currentLevel = 1;                          // Nível atual do jogo
-int ledDelay; // Variável para armazenar a velocidade dos LEDs
-int numPlayers = 2; // Variável para armazenar o número de jogadores (1 ou 2)
-// Declaração de 'correctCount' para uso em ambas as funções
+const int MAX_LEVELS = 5;                     
+const int POINTS_PER_LEVEL = 5;               
+const int POINTS_FOR_CORRECT = 1;             
+const long SERIAL_TIMEOUT = 10000;            
+int sequence[100];                            
+int playerPosition = 0;                       
+int sequenceLength = 0;                      
+int rounds[2] = {0, 0};                      
+int currentPlayer = 0;                        
+int currentLevel = 1;                      
+int ledDelay;
+int numPlayers = 2; 
 int correctCount = 0;
-bool isGameOver = false;                      // Estado do jogo
+bool isGameOver = false;                      
 bool continuarJogo = true;
 
-LiquidCrystal_I2C lcd1(ende, col, lin); // Inicializa o LCD
+// Diplay
+LiquidCrystal_I2C lcd1(ende, col, lin); 
 
 // Componentes do jogo
 struct Componente {
@@ -45,7 +46,7 @@ Componente componentes[] = {
   {"Verde", BUTTONS[1], LED_PINS[1], 294},     // D4 - Ré
   {"Azul", BUTTONS[2], LED_PINS[2], 330},      // E4 - Mi
   {"Amarelo", BUTTONS[3], LED_PINS[3], 392},   // G4 - Sol
-  {"Main", BUTTON_MAIN, LED_MAIN, 440}         // Botão e LED principal com tom de A4 - Lá
+  {"Main", BUTTON_MAIN, LED_MAIN, 440}         // Botão e LED principal - Lá
 };
 
 
@@ -57,10 +58,10 @@ struct Dificuldade {
 
 // Definição dos níveis de dificuldade
 Dificuldade dificuldades[] = {
-    {1000, "Iniciante"},   // Dificuldade 1
-    {500, "Media"},        // Dificuldade 2
-    {250, "Dificil"},      // Dificuldade 3
-    {125, "Muito Difícil"} // Dificuldade 4
+    {1000, "Iniciante"},  
+    {500, "Media"},        
+    {250, "Dificil"},      
+    {125, "Muito Dificil"} 
 };
 
 // Protótipos das funções
@@ -90,14 +91,14 @@ void setup() {
 
     // Inicializar LED Main
     pinMode(LED_MAIN, OUTPUT);                   // Configurar LED_MAIN como saída
-    digitalWrite(LED_MAIN, LOW);                 // Garantir que o LED_MAIN esteja desligado inicialmente
+    digitalWrite(LED_MAIN, LOW);                 
 
     // Inicializar Botão Main
-    pinMode(BUTTON_MAIN, INPUT_PULLUP);          // Configurar BUTTON_MAIN como entrada com resistor de pull-up
+    pinMode(BUTTON_MAIN, INPUT_PULLUP);          
 
     // Inicializar LCD1
-    lcd1.init(); // Inicia a comunicação com o display                            // Inicializa o LCD I2C
-    lcd1.backlight();                          // Ativa a luz de fundo do LCD
+    lcd1.init(); // Inicia a comunicação com o display                            
+    lcd1.backlight();                          
     lcd1.clear();
 
     // Exibir informações iniciais para iniciar o jogo
@@ -587,4 +588,3 @@ void salvarPontuacaoAlta(int player, int score) {
         }
     }
 }
-
