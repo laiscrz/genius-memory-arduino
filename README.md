@@ -73,6 +73,9 @@ Confira a simulação online do código e do circuito para o jogo "Genius" no li
 ## 📦 Construindo uma Caixa Personalizada
 A caixa do protótipo será projetada no estilo do **Nintendo Switch**, utilizando [OnShape](https://www.onshape.com/) para um design estético e funcional. A impressão em 3D garantirá durabilidade e um visual atraente. 🎮✨
 
+![Protótipo Genius 3D](https://github.com/user-attachments/assets/93cfae8e-c575-4c39-8c74-df374e7195b7)
+
+
 ## 🫂 Integrantes
 
 Aqui estão os membros do grupo que participaram durante desenvolvimento deste Checkpoint.
