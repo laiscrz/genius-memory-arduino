@@ -96,16 +96,7 @@ void setup() {
     lcd1.backlight();                          
     lcd1.clear();
 
-    lcd1.setCursor(0, 0);
-    lcd1.print("Genius Memory");
-    lcd1.setCursor(0, 1);
-    lcd1.print("Start Game...");
-
     randomSeed(analogRead(0));
-
-    while (digitalRead(BUTTON_MAIN) == HIGH) {
-      delay(100);
-    }
 
     iniciarJogo();
 }
@@ -337,6 +328,9 @@ void verificarEntradaJogador() {
             digitalWrite(componenteAtual.led, LOW);
             
             
+            lcd1.clear();
+            lcd1.setCursor(0, 0);
+            lcd1.print("Jogador Sua Vez!");
             lcd1.setCursor(0, 1);
             lcd1.print("Botao: ");
             lcd1.print(componenteAtual.cor); 
@@ -362,7 +356,15 @@ void verificarEntradaJogador() {
 // Inicia o jogo e exibe informações iniciais no LCD. Configurando a dificuldade e o modo de jogo.
 void iniciarJogo() {
     Serial.println("Iniciando o jogo! Pressione o Button Main para começar.");
-    lcd1.print("Pressione Main");
+    lcd1.setCursor(0, 0);
+    lcd1.print("Genius Memory");
+    lcd1.setCursor(0, 1);
+    lcd1.print("Start Game...");
+
+    while (digitalRead(BUTTON_MAIN) == HIGH) {
+      delay(100);
+    }
+
     lcd1.clear();
     lcd1.setCursor(0, 0);
     lcd1.print("Preparando...");
@@ -526,6 +528,7 @@ bool perguntarContinuarJogo() {
             noTone(BUZZER_PIN);
             return false; 
         }
+        
     }
 }
 
