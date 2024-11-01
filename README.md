@@ -1,6 +1,8 @@
 # 🎮 Jogo da Memória Genius com Arduino
 
 > **Submetido como Checkpoint 5 da disciplina de DISRUPTIVE ARCHITECTURES: IOT, IOB & GENERATIVE IA.** 📚
+
+> **⭐ Nota Máxima:** Projeto avaliado com nota máxima pelo professor.  
  
 > **Professor: [Arnaldo Jr.](https://github.com/arnaldojr)** 👨🏻‍🏫
 
